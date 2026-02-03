@@ -3,27 +3,22 @@ pipeline {
 
     stages {
 
-        stage('Clone Repository') {
+        stage('Clone Code') {
             steps {
-                git 'https://github.com/Ashu6605/my-demo.git'
+                git branch: 'main', url: 'https://github.com/Ashu6605/my-demo.git'
             }
         }
 
-        stage('Install Apache (httpd)') {
+        stage('Deploy Static Website') {
             steps {
                 sh '''
-                sudo yum install -y httpd
                 sudo systemctl start httpd
                 sudo systemctl enable httpd
-                '''
-            }
-        }
 
-        stage('Deploy Website') {
-            steps {
-                sh '''
-                sudo cp index.html /var/www/html/
-                sudo chmod 644 /var/www/html/index.html
+                sudo rm -rf /var/www/html/*
+                sudo cp -r * /var/www/html/
+
+                sudo chown -R apache:apache /var/www/html
                 '''
             }
         }
@@ -31,10 +26,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment successful! Website is live."
+            echo '✅ Static website deployed successfully'
         }
         failure {
-            echo "❌ Deployment failed."
+            echo '❌ Deployment failed'
         }
     }
 }
